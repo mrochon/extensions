@@ -32,7 +32,7 @@ namespace MRochon.Extensions
             _options = options;
         }
 
-        public async Task<string?> FindUser(string idValue, string? idIssuer)
+        public async Task<string?> FindUserAsync(string idValue, string? idIssuer = null)
         {
             if(String.IsNullOrEmpty(idIssuer))
             {
