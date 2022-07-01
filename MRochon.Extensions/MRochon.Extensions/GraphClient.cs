@@ -50,7 +50,7 @@ namespace MRochon.Extensions
                     return user["id"]!.GetValue<string>();
             }
             _logger.LogError(respBody);
-            return String.Empty;
+            return null;
         }
 
         public async Task<string?> NewUserAsync(string json)
@@ -79,7 +79,7 @@ namespace MRochon.Extensions
                 return userId;
             }
             _logger.LogError(respBody);
-            return String.Empty;
+            return null;
         }
 
         public async Task<bool> AddToGroupAsync(string groupdId, string membId, bool asOwner = false)
