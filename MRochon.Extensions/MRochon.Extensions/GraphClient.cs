@@ -32,7 +32,7 @@ namespace MRochon.Extensions
             _options = options;
         }
 
-        public async Task<string?> FindUserAsync(string idValue, string? idIssuer = null)
+        public async Task<JsonNode?> FindUserAsync(string idValue, string? idIssuer = null)
         {
             if(String.IsNullOrEmpty(idIssuer))
             {
@@ -40,14 +40,12 @@ namespace MRochon.Extensions
             }
             var tokens = await _msal.AcquireTokenForClient(new string[] { ".default" }).ExecuteAsync();
             _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokens.AccessToken);
-            var req = new HttpRequestMessage(HttpMethod.Get, $"https://graph.microsoft.com/v1.0/users?$select=id&$filter=(\"identities/any(i:i/issuer eq '{idIssuer}' and i/issuerAssignedId eq '{idValue}')\")");
+            var req = new HttpRequestMessage(HttpMethod.Get, $"https://graph.microsoft.com/v1.0/users?$filter=(identities/any(i:i/issuer eq '{idIssuer}' and i/issuerAssignedId eq '{idValue}'))");
             var resp = await _http.SendAsync(req);
             var respBody = await resp.Content.ReadAsStringAsync();
             if (resp.IsSuccessStatusCode)
             {
-                var user = JsonNode.Parse(respBody)["values"]!.GetValue<JsonArray>().FirstOrDefault();
-                if (user != null)
-                    return user["id"]!.GetValue<string>();
+                return ((JsonArray)(JsonNode.Parse(respBody)["value"])).FirstOrDefault();
             }
             _logger.LogError(respBody);
             return null;
