@@ -93,5 +93,20 @@ namespace MRochon.Extensions
             _logger.LogError(await resp.Content.ReadAsStringAsync());
             return false;
         }
+        public async Task<JsonArray?> GetGroupsAsync()
+        {
+            _logger.LogInformation("GetGroupsAsync starting");
+            var tokens = await _msal.AcquireTokenForClient(new string[] { ".default" }).ExecuteAsync();
+            _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokens.AccessToken);
+            var resp = await _http.GetAsync("https://graph.microsoft.com/V1.0/groups/");
+            var body = await resp.Content.ReadAsStringAsync();
+            if (resp.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("GetGroupsAsync completing OK");
+                return (JsonArray) JsonNode.Parse(body)["value"]!;
+            }
+            _logger.LogError($"GetGroupsAsync error: {body}");
+            return null;
+        }
     }
 }
