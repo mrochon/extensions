@@ -1,0 +1,19 @@
+        <TechnicalProfile Id="REST-GetUserRoles">
+          <DisplayName>get user roles</DisplayName>
+          <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
+          <Metadata>
+            <Item Key="ServiceUrl">{GetUserRolesAPI}</Item>
+            <Item Key="AuthenticationType">None</Item>
+            <Item Key="SendClaimsIn">QueryString</Item>
+            <Item Key="DefaultUserMessageIfRequestFailed">Cannot process your request right now, please try again later.</Item>
+            <Item Key="AllowInsecureAuthInProduction">true</Item>
+            <Item Key="IncludeClaimResolvingInClaimsHandling">true</Item>
+          </Metadata>
+          <InputClaims>
+            <InputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="userObjectId" />
+            <InputClaim ClaimTypeReferenceId="client_Id" DefaultValue="{OIDC:ClientId}" AlwaysUseDefaultValue="true" />            
+          </InputClaims>
+          <OutputClaims>
+            <OutputClaim ClaimTypeReferenceId="roles" />
+          </OutputClaims>
+        </TechnicalProfile> 
