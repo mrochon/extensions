@@ -31,7 +31,22 @@ namespace MRochon.Extensions
             _http = http;
             _options = options;
         }
-
+        public async Task<JsonArray?> GetUsersAsync()
+        {
+            _logger.LogInformation("GetUsersAsync starting");
+            var tokens = await _msal.AcquireTokenForClient(new string[] { ".default" }).ExecuteAsync();
+            _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokens.AccessToken);
+            var selectClause = "$select=displayName,identities";
+            var resp = await _http.GetAsync($"https://graph.microsoft.com/V1.0/users/?$filter=creationType eq 'LocalAccount'&{selectClause}");
+            var body = await resp.Content.ReadAsStringAsync();
+            if (resp.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("GetUsersAsync completing OK");
+                return (JsonArray)JsonNode.Parse(body)["value"]!;
+            }
+            _logger.LogError($"GetUsersAsync error: {body}");
+            return null;
+        }
         public async Task<JsonNode?> FindUserAsync(string idValue, string? idIssuer = null)
         {
             if(String.IsNullOrEmpty(idIssuer))
@@ -78,6 +93,21 @@ namespace MRochon.Extensions
             }
             _logger.LogError(respBody);
             return null;
+        }
+        public async Task DisableUserAsync(string objectId, bool isBlocked)
+        {
+            _logger.LogInformation("DisableUserAsync starting");
+            var tokens = await _msal.AcquireTokenForClient(new string[] { ".default" }).ExecuteAsync();
+            _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", tokens.AccessToken);
+            var url = $"https://graph.microsoft.com/V1.0/users/{objectId}";
+            var req = new HttpRequestMessage(HttpMethod.Patch, url)
+            {
+                Content = new StringContent($"{{\"accountEnabled\":\"{!isBlocked}\"}}", Encoding.UTF8, "application/json")
+            };
+            var resp = await _http.SendAsync(req);
+            var body = await resp.Content.ReadAsStringAsync();
+            if (!resp.IsSuccessStatusCode)
+                _logger.LogError($"DisableUserAsync error: {body}");
         }
 
         public async Task<bool> AddToGroupAsync(string groupdId, string membId, bool asOwner = false)
