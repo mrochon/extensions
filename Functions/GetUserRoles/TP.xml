@@ -1,4 +1,13 @@
-        <TechnicalProfile Id="REST-GetUserRoles">
+<ClaimType Id="roles">
+  <DisplayName>User roles</DisplayName>
+  <DataType>stringCollection</DataType>
+</ClaimType>
+<ClaimType Id="roleCount">
+  <DisplayName>Number of user roles</DisplayName>
+  <DataType>int</DataType>
+</ClaimType>    
+
+<TechnicalProfile Id="REST-GetUserRoles">
           <DisplayName>get user roles</DisplayName>
           <Protocol Name="Proprietary" Handler="Web.TPEngine.Providers.RestfulProvider, Web.TPEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" />
           <Metadata>
@@ -15,5 +24,6 @@
           </InputClaims>
           <OutputClaims>
             <OutputClaim ClaimTypeReferenceId="roles" />
+            <OutputClaim ClaimTypeReferenceId="roleCount" PartnerClaimType="count" />            
           </OutputClaims>
         </TechnicalProfile> 

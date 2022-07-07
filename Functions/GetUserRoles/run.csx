@@ -49,9 +49,10 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             {
                 var roles = roleAssignments
                     .Join(appRoles, ra => ((JObject)ra)["appRoleId"].Value<string>(), role => role.id, (ra, role) => role.value).ToList();
-                return new OkObjectResult(new { roles });
+                log.LogInformation($"GetRoles: returning {roles.Count()} roles");
+                return new OkObjectResult(new { roles, count = roles.Count() });
             }
-            return new OkResult();
+            return new OkObjectResult(new { count = 0 });
         }
         catch (Exception ex)
         {
